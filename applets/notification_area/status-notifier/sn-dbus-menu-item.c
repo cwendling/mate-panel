@@ -19,6 +19,8 @@
 
 #include "sn-dbus-menu-item.h"
 
+#include "sn-debug.h"
+
 static GdkPixbuf *
 pxibuf_new (GVariant *variant)
 {
@@ -44,6 +46,7 @@ pxibuf_new (GVariant *variant)
 
   if (error != NULL)
     {
+      sn_debug ("WARNING: Unable to build GdkPixbuf from icon data: %s\n", error->message);
       g_warning ("Unable to build GdkPixbuf from icon data: %s", error->message);
       g_error_free (error);
     }
@@ -188,13 +191,18 @@ sn_dbus_menu_item_new (GVariant *props)
 
           if (item->icon_name)
             {
+              sn_debug ("got icon name '%s' for menuitem '%s'\n",
+                        item->icon_name, item->label);
               image = gtk_image_new_from_icon_name (item->icon_name,
                                                     GTK_ICON_SIZE_MENU);
             }
           else if (item->icon_data)
             {
+              sn_debug ("got icon data for menuitem '%s'\n", item->label);
               image = gtk_image_new_from_pixbuf (item->icon_data);
             }
+          else
+            sn_debug ("no icon for menuitem '%s'\n", item->label);
 
           item->item = gtk_image_menu_item_new ();
           gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (item->item),
@@ -308,6 +316,8 @@ sn_dbus_menu_item_update_props (SnDBusMenuItem *item,
           g_free (item->icon_name);
           item->icon_name = g_variant_dup_string (value, NULL);
 
+          sn_debug ("menuitem %s update(%s): %s\n", item->label, prop, item->icon_name);
+
           if (item->icon_name)
             {
               image = gtk_image_new_from_icon_name (item->icon_name,
@@ -327,6 +337,8 @@ sn_dbus_menu_item_update_props (SnDBusMenuItem *item,
 
           g_clear_object (&item->icon_data);
           item->icon_data = pxibuf_new (value);
+
+          sn_debug ("menuitem %s update(%s): %p\n", item->label, prop, item->icon_data);
 
           if (item->icon_data)
             {

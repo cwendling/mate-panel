@@ -22,6 +22,8 @@
 
 #include "na-item.h"
 
+#include "sn-debug.h"
+
 struct _SnItemPrivate
 {
   gchar          *bus_name;
@@ -255,6 +257,8 @@ sn_item_button_press_event (GtkWidget      *widget,
     {
       if (priv->menu != NULL)
         {
+          sn_debug ("%s: got a local menu, poping it up\n",
+                    na_item_get_id (NA_ITEM (item)));
 #if GTK_CHECK_VERSION (3, 22, 0)
           gtk_menu_popup_at_widget (priv->menu, widget,
                                     GDK_GRAVITY_SOUTH_WEST,
@@ -268,6 +272,8 @@ sn_item_button_press_event (GtkWidget      *widget,
         }
       else
         {
+          sn_debug ("%s: no menu, calling context_menu()\n",
+                    na_item_get_id (NA_ITEM (item)));
 #if GTK_CHECK_VERSION (3, 20, 0)
           gdk_seat_ungrab (gdk_device_get_seat (event->device));
 #else

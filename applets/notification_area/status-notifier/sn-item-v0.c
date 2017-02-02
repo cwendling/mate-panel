@@ -277,6 +277,7 @@ update (SnItemV0 *v0)
     icon_size = MAX (1, v0->effective_icon_size);
 
   sn_debug ("updating icon for item '%s', for size %d\n", v0->id, icon_size);
+  sn_debug ("icon size is %s\n", v0->icon_size > 0 ? "forced" : "automatic");
 
   if (v0->icon_name != NULL && v0->icon_name[0] != '\0')
     {
