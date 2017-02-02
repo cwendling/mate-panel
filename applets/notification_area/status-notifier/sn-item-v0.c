@@ -24,6 +24,8 @@
 #include "sn-item-v0.h"
 #include "sn-item-v0-gen.h"
 
+#include "sn-debug.h"
+
 #define SN_ITEM_INTERFACE "org.kde.StatusNotifierItem"
 
 typedef struct
@@ -85,31 +87,6 @@ enum
 static GParamSpec *properties[LAST_PROP] = { NULL };
 
 G_DEFINE_TYPE (SnItemV0, sn_item_v0, SN_TYPE_ITEM)
-
-#if 1
-#include <stdlib.h>
-#include <stdio.h>
-
-static FILE *sn_logfile__ = NULL;
-static void sn_logfile_cleanup(void) {
-  if (sn_logfile__) {
-    fclose (sn_logfile__);
-    sn_logfile__ = NULL;
-  }
-}
-static FILE *sn_logfile(void) {
-  if (! sn_logfile__) {
-    sn_logfile__ = fopen ("/tmp/sn.log", "wb");
-    setvbuf (sn_logfile__, NULL, _IONBF, 0);
-    atexit (sn_logfile_cleanup);
-  }
-  return sn_logfile__;
-}
-# ifdef stderr
-#   undef stderr
-# endif
-# define stderr (sn_logfile())
-#endif
 
 static cairo_surface_t *
 scale_surface (SnIconPixmap   *pixmap,
@@ -212,16 +189,16 @@ get_surface (SnItemV0       *v0,
     {
       SnIconPixmap *p = (SnIconPixmap *) l->data;
 
-      fprintf (stderr, "pixmap is available at size %dx%d\n", p->width, p->height);
+      sn_debug ("pixmap is available at size %dx%d\n", p->width, p->height);
     }
 
   g_list_free (pixmaps);
 
   if (pixmap)
-    fprintf (stderr, "pixmap: requested %d, chosen %dx%d\n", size,
-             pixmap->width, pixmap->height);
+    sn_debug ("pixmap: requested %d, chosen %dx%d\n", size,
+              pixmap->width, pixmap->height);
   else
-    fprintf (stderr, "no pixmap!\n");
+    sn_debug ("no pixmap!\n");
 
   if (pixmap == NULL || pixmap->surface == NULL)
     return NULL;
@@ -263,9 +240,9 @@ get_icon_by_name (const gchar *icon_name,
   for (i = 0; sizes[i] != 0; i++)
     {
       if (sizes[i] == -1)
-        fprintf (stderr, "%s is available scalable (SVG)\n", icon_name);
+        sn_debug ("%s is available scalable (SVG)\n", icon_name);
       else
-        fprintf (stderr, "%s is available at size %d\n", icon_name, sizes[i]);
+        sn_debug ("%s is available at size %d\n", icon_name, sizes[i]);
     }
 
   g_free (sizes);
@@ -273,8 +250,8 @@ get_icon_by_name (const gchar *icon_name,
   if (chosen_size == 0)
     chosen_size = requested_size;
 
-  fprintf (stderr, "icon-name %s: requested %d, chosen %d\n", icon_name,
-           requested_size, chosen_size);
+  sn_debug ("icon-name %s: requested %d, chosen %d\n", icon_name,
+            requested_size, chosen_size);
 
   return gtk_icon_theme_load_icon (icon_theme, icon_name,
                                    chosen_size, GTK_ICON_LOOKUP_FORCE_SIZE,
@@ -299,13 +276,13 @@ update (SnItemV0 *v0)
   else
     icon_size = MAX (1, v0->effective_icon_size);
 
-  fprintf (stderr, "updating icon for item '%s', for size %d\n", v0->id, icon_size);
+  sn_debug ("updating icon for item '%s', for size %d\n", v0->id, icon_size);
 
   if (v0->icon_name != NULL && v0->icon_name[0] != '\0')
     {
       GdkPixbuf *pixbuf;
 
-      fprintf (stderr, "got icon name '%s' for item '%s'\n", v0->icon_name, v0->id);
+      sn_debug ("got icon name '%s' for item '%s'\n", v0->icon_name, v0->id);
       pixbuf = get_icon_by_name (v0->icon_name, icon_size);
       gtk_image_set_from_pixbuf (image, pixbuf);
       g_object_unref (pixbuf);
@@ -314,7 +291,7 @@ update (SnItemV0 *v0)
     {
       cairo_surface_t *surface;
 
-      fprintf (stderr, "got icon pixmap for item %s\n", v0->id);
+      sn_debug ("got icon pixmap for item %s\n", v0->id);
       surface = get_surface (v0,
                              gtk_orientable_get_orientation (GTK_ORIENTABLE (v0)),
                              icon_size);
@@ -326,7 +303,7 @@ update (SnItemV0 *v0)
     }
   else
     {
-      fprintf (stderr, "no icon for item %s!\n", v0->id);
+      sn_debug ("no icon for item %s!\n", v0->id);
       gtk_image_set_from_icon_name (image, "image-missing", GTK_ICON_SIZE_MENU);
       gtk_image_set_pixel_size (image, icon_size);
     }

@@ -14,6 +14,8 @@ AM_CPPFLAGS =							\
 AM_CFLAGS = $(WARN_CFLAGS)
 
 libstatus_notifier_la_SOURCES =		\
+	sn-debug.c			\
+	sn-debug.h			\
 	sn-dbus-menu.c			\
 	sn-dbus-menu.h			\
 	sn-dbus-menu-item.c		\
