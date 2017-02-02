@@ -277,7 +277,12 @@ update (SnItemV0 *v0)
     icon_size = MAX (1, v0->effective_icon_size);
 
   sn_debug ("updating icon for item '%s', for size %d\n", v0->id, icon_size);
-  sn_debug ("icon size is %s\n", v0->icon_size > 0 ? "forced" : "automatic");
+  sn_debug ("  icon size is %s\n", v0->icon_size > 0 ? "forced" : "automatic");
+  sn_debug ("  item margin: %dpx %dpx %dpx %dpx\n",
+            gtk_widget_get_margin_top (GTK_WIDGET (v0)),
+            gtk_widget_get_margin_right (GTK_WIDGET (v0)),
+            gtk_widget_get_margin_bottom (GTK_WIDGET (v0)),
+            gtk_widget_get_margin_left (GTK_WIDGET (v0)));
 
   if (v0->icon_name != NULL && v0->icon_name[0] != '\0')
     {
